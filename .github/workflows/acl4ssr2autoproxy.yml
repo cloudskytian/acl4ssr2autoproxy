@@ -1,0 +1,29 @@
+name: acl4ssr2autoproxy
+on:
+  schedule:
+    - cron: '55 4 * * *'
+  workflow_dispatch:
+jobs:
+  acl4ssr2autoproxy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          token: ${{secrets.GH_TOKEN}}
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.14"
+      - name: Run acl4ssr2autoproxy
+        run: |
+          python acl4ssr2autoproxy.py
+      - name: Commit And Push
+        run: |
+          date "+%Y-%m-%d %H:%M:%S" > timestamp
+          git config user.name ${{github.repository_owner}}
+          git config user.email ${{github.repository_owner}}@users.noreply.github.com
+          git remote set-url origin https://${{secrets.GH_TOKEN}}@github.com/${{github.repository}}.git
+          git add -A
+          git commit -m "Update"
+          git push -f origin ${{github.ref_name}}
+          
